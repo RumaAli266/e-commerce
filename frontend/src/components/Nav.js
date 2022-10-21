@@ -1,5 +1,9 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+// import {imga} from '../assets/images/download.png'
+import logo from '../assets/images/download.png'
+import '../App.css'
+
 
 const Nav = () =>{
     const auth = localStorage.getItem('user')
@@ -11,16 +15,21 @@ const Nav = () =>{
 
     return(
         <div>
-            <ul className='nav-ul'>
+        
+        <img src={logo} alt='logo' className='logo'/>
+           {auth ?  <ul className='nav-ul'>
                 <li><Link to="/">Products</Link></li>
                 <li><Link to="/add">Add Product</Link></li>
                 <li><Link to="/update">Update Product</Link></li>
                 <li><Link to="/profile">Profile</Link></li>
-                <li>{ auth ? (<Link onClick={logout} to="/signup">Logout</Link>) : 
-                (<div className='nav-ul'>
-                <Link to="/signup">Sign Up</Link> {''}
-                <Link to="/login">Login</Link></div>)}</li>
-            </ul>
+                <li><Link onClick={logout} to="/signup">Logout ({JSON.parse(auth).name})</Link> </li>
+                </ul>
+                : 
+                <ul className='nav-ul nav-right'>
+                <li><Link to="/signup">Sign Up</Link> {''}</li>
+                <li><Link to="/login">Login</Link></li>
+                </ul>
+            }
         </div>
     )
 }
