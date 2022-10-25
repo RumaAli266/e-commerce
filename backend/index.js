@@ -3,6 +3,7 @@ dotenv.config()
 import express from 'express'
 import connectDB from './db/connectdb.js'
 import User from './model/User.js'
+import Product from './model/Product.js'
 import cors from 'cors'
 const app = express()
 const port = process.env.PORT || '5000'
@@ -38,6 +39,25 @@ app.post("/login", async (req, res)=>{
     }
 })
 
+//route for add product
+app.post('/add-product',async(req, res)=>{
+    console.log('photo', req.body)
+    let product = new Product(req.body)
+    console.log(product)
+    let result = await product.save()
+    res.send(result)
+})
+
+
+//route for get products
+app.get('/products', async (req, res)=>{
+    let products = await Product.find();
+    if(products.length > 0){
+        res.send(products)
+    }else{
+        res.send({result: "No Product found"})
+    }
+})
 
 app.get("/", ((req, res)=>{
     res.send('app is working')

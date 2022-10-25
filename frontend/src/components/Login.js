@@ -14,7 +14,7 @@ const Login = () =>{
         }else{
             navigate('/login')
         }
-    },[])
+    },[navigate])
     const handleLogin = async () =>{
         console.log(email, password)
         let result = await fetch('http://localhost:5000/login',{
