@@ -11,9 +11,12 @@ const DATABASE_URL = process.env.DATABASE_URL
 
 connectDB(DATABASE_URL)
 
+import multer from 'multer'
+
+const upload = multer({ dest: 'uploads/'})
 app.use(express.json())
 app.use(cors())
-
+app.use('/uploads', express.static('uploads'))
 //define route
 app.post('/register', async (req, res)=>{
     let user = new User(req.body);
@@ -40,13 +43,21 @@ app.post("/login", async (req, res)=>{
 })
 
 //route for add product
-app.post('/add-product',async(req, res)=>{
-    console.log('photo', req.body)
-    let product = new Product(req.body)
+app.post('/add-product', upload.single('photo'), async(req, res)=>{
+    console.log(req.file, req.body, 'line no 57')
+    const name = req.body.name
+    const price = req.body.price
+    const category = req.body.category
+    const photo = req.file.path
+    const company = req.body.company
+
+    let product = new Product({name: name, price: price, category: category, photo: photo, company: company})
     console.log(product)
     let result = await product.save()
     res.send(result)
 })
+
+
 
 
 //route for get products
@@ -63,6 +74,16 @@ app.get("/", ((req, res)=>{
     res.send('app is working')
 }))
 
+
+//route for delete product 
+app.delete("/product/:id", ((req, res)=>{
+    const result = Product.deleteOne({_id: req.params._id})
+    console.log('backend0', result)
+    res.send(result);
+
+}))
+
+
 app.listen(port, ()=>{
-    console.log(`Server listening at http://localhost:${port}`)
+    console.log(`Server listeninnng at http://localhost:${port}`)
 })

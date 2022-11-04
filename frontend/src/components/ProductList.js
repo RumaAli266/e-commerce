@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-
+import axios from 'axios'
 
 const ProductList = () =>{
     const [products, setProducts] = useState([]);
@@ -9,10 +9,26 @@ const ProductList = () =>{
     }, [])
 
     const getProducts = async() =>{
-        let result = await fetch("http://localhost:5000/products");
-        result = await result.json(); 
-        setProducts(result)
+        axios.get('http://localhost:5000/products').then(
+            res =>{
+                setProducts(res.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
+
+    const deleteProduct = async(id) =>{
+        let result = await fetch(`http://localhost:5000/product/${id}`,{
+            method: "DELETE",
+        });
+        result = await result.json();
+        console.log('what in result', result)
+        if(result){
+            getProducts();
+        }
+    }
+
     return(
     <div className='product-list'>
     <h1 class="display-1" style={{margin:"20px"}}>Products Listing</h1>
@@ -20,13 +36,15 @@ const ProductList = () =>{
         {products.map((data, key)=>{
             return(
                 <div class="col" key={key}>
-                    <div class="card" style={{margin:"20px"}}>
-                    {/* <img src="..." class="card-img-top" alt="..."/> */}
+                    <div class="card" style={{margin:"20px", minHeight:"370px"}}>
                     <div class="card-body">
+                        <img alt='issue' src={`http://localhost:5000/${data?.photo}`} width='200px' height='200px' style={{borderRadius: "50%" }}/>
                         <h5 class="card-title">{data.name}</h5>
-                        <h4 class="card-title">{data.price}</h4>
+                        <h4 class="card-title">${data.price}</h4>
                         <h3 class="card-title">{data.category}</h3>
+                        {/* {console.log(`http://localhost:5000/${data?.photo}`)} */}
                         <p class="card-text">{data.company}</p>
+                        <button type="button" class="btn btn-danger" onClick={()=>deleteProduct(data._id)}>Delete</button>
                     </div>
                     </div>
                 </div>
@@ -36,3 +54,5 @@ const ProductList = () =>{
 )}
 
 export default ProductList
+
+// 160608888

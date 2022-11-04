@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {useNavigate} from 'react-router-dom'
+import axios from 'axios'
 
 const AddProduct = () =>{
     const [name, setName] = useState('')
@@ -9,27 +10,48 @@ const AddProduct = () =>{
     const [company, setCompany] = useState('')
     const [error, setError] = useState('')
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const addProduct = async () =>{
-        debugger
         if(!name || !price || !category || !photo || !company){
             setError(true)
             return false
         }
-        const userId = JSON.parse(localStorage.getItem('user'))._id;
-        let result = await fetch("http://localhost:5000/add-product", {
-            method: 'post',
-            body: JSON.stringify({
-                name, price, category, photo, company, userId
-            }),
-            headers:{
-                "Content-Type": "application/json"
+
+        const formData = new FormData()
+        formData.append('name', name)
+        formData.append('price', price)
+        formData.append('category', category)
+        formData.append('photo', photo)
+        formData.append('company', company)
+        axios.post('http://localhost:5000/add-product',
+            formData,
+            {
+                headers: {'Authorization': localStorage.getItem('token')}
             }
-        });
-        result = await result.json();
-        console.warn(result)
-        navigate('/')
+        ).then((res)=>{
+            if(res.data.code === 403 && res.data.message === 'Token Expired'){
+                localStorage.setItem('token', null)
+            } 
+            navigate('/')
+        })
+        .catch(err =>{
+            console.log(err, 'err')
+        })
+
+        // const userId = JSON.parse(localStorage.getItem('user'))._id;
+        // let result = await fetch("http://localhost:5000/add-product", {
+        //     method: 'post',
+        //     body: JSON.stringify({
+        //         name, price, category, photo, company, userId
+        //     }),
+        //     headers:{
+        //         "Content-Type": "application/json"
+        //     }
+        // });
+        // result = await result.json();
+        // console.warn(result)
+        // navigate('/')
     }
 
  return(
@@ -47,7 +69,7 @@ const AddProduct = () =>{
     onChange={(e)=>{setCategory(e.target.value)}} value={category} />
     {error && !category && <span className='invalid-input'>Enter valid category</span>}
     
-    <input type="file" accept=".png, .jpg, .jpeg" name='photo' placeholder='upload photo' className='inputBox' 
+    <input type="file" name='photo' placeholder='upload photo' className='inputBox' 
     onChange={(e) => setPhoto(e.target.files[0])}  />
     {error && !photo && <span className='invalid-input'>upload image</span>}
 
